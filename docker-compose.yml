@@ -1,0 +1,37 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # MLflow Tracking and UI Server
+  mlflow:
+    build: ./mlflow-server
+    ports:
+      - "5001:5001"  # Expose MLflow UI to the host
+    volumes:
+      - ./mlruns:/mlruns  # Mount the shared volume for artifacts and DB
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 2s
+
+  # FastAPI Application Server
+  app:
+    build: ./app
+    ports:
+      - "8000:8000"  # Expose FastAPI to the host
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5001
+    depends_on:
+      mlflow: # Wait for the mlflow service to be healthy before starting
+        condition: service_healthy
+    networks:
+      - mlops-network
+
+networks:
+  mlops-network:
+    driver: bridge
+
