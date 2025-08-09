@@ -23,7 +23,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-main.txt
 
       - name: Run the training script
         # In a real scenario, this step would be inside a running Docker Compose network.
