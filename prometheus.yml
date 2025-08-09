@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s # How often to scrape metrics
+
+scrape_configs:
+  - job_name: 'fastapi-app'
+    # This tells Prometheus where to find your FastAPI app.
+    # 'app:8000' works because both services will be on the same Docker network.
+    static_configs:
+      - targets: ['app:8000']
