@@ -31,7 +31,35 @@ services:
     networks:
       - mlops-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090" # Expose Prometheus UI
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Mount config file
+      - prometheus-data:/prometheus # Persistent data volume
+    command: --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - mlops-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    ports:
+      - "3000:3000" # Expose Grafana UI
+    volumes:
+      - grafana-data:/var/lib/grafana # Persistent data volume
+    depends_on:
+      - prometheus
+    networks:
+      - mlops-network
+
 networks:
   mlops-network:
     driver: bridge
 
+volumes:
+
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

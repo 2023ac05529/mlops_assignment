@@ -4,3 +4,4 @@ pandas
 mlflow>=2.0
 scikit-learn
 boto3
+prometheus_fastapi_instrumentator

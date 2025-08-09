@@ -3,6 +3,8 @@ FROM python:3.9-slim
 # Set the working directory inside the container
 WORKDIR /app
 
+RUN mkdir logs
+
 # Copy the API dependencies file first to leverage Docker layer caching
 COPY requirements-api.txt .
 

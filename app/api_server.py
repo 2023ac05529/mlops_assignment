@@ -4,11 +4,16 @@ import uvicorn
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 import logging
 import os 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, # Capture INFO level messages and above (WARNING, ERROR)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', # The format for each log line
+    filename='logs/api.log' # The destination file
+)
 
 # Define the input schema using Pydantic for validation
 class FlowerFeatures(BaseModel):
@@ -18,6 +23,7 @@ class FlowerFeatures(BaseModel):
     petal_width: float
 
 app = FastAPI(title="Iris Model Serving API", version="1.0")
+Instrumentator().instrument(app).expose(app)
 
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)

@@ -9,3 +9,16 @@ docker run -p 8000:8000 \
   -v "$(pwd)/mlruns:/app/mlruns" \
   -e MLFLOW_TRACKING_URI='sqlite:////app/mlruns/mlflow.db' \
   srinim1985bits/iris-api:1.0
+
+
+docker run --rm -p 8001:8000 \
+  -e MLFLOW_TRACKING_URI='http://host.docker.internal:5001' \
+  srinim1985bits/iris-api:latest
+
+
+docker run --rm -p 8001:8000 \
+  --network mlops_assignment_mlops-network \
+  -e MLFLOW_TRACKING_URI='http://mlflow:5001' \
+  srinim1985bits/iris-api:latest
+
+curl -X POST "http://localhost:8000/predict" -H "Content-Type: application/json" -d '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
