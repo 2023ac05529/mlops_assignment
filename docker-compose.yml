@@ -6,9 +6,9 @@ services:
   mlflow:
     build: ./mlflow-server
     ports:
-      - "5001:5001"  # Expose MLflow UI to the host
+      - "5001:5001"  
     volumes:
-      - ./mlruns:/mlruns  # Mount the shared volume for artifacts and DB
+      - ./mlruns:/mlruns  
     networks:
       - mlops-network
     healthcheck:
@@ -22,11 +22,11 @@ services:
   app:
     build: ./app
     ports:
-      - "8000:8000"  # Expose FastAPI to the host
+      - "8000:8000" 
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5001
     depends_on:
-      mlflow: # Wait for the mlflow service to be healthy before starting
+      mlflow: 
         condition: service_healthy
     networks:
       - mlops-network
@@ -34,10 +34,10 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090" # Expose Prometheus UI
+      - "9090:9090" 
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Mount config file
-      - prometheus-data:/prometheus # Persistent data volume
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+      - prometheus-data:/prometheus 
     command: --config.file=/etc/prometheus/prometheus.yml
     networks:
       - mlops-network
@@ -45,9 +45,9 @@ services:
   grafana:
     image: grafana/grafana-oss:latest
     ports:
-      - "3000:3000" # Expose Grafana UI
+      - "3000:3000" 
     volumes:
-      - grafana-data:/var/lib/grafana # Persistent data volume
+      - grafana-data:/var/lib/grafana 
     depends_on:
       - prometheus
     networks:

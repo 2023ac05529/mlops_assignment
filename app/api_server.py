@@ -1,4 +1,3 @@
-# app/api_server.py
 import mlflow
 import uvicorn
 import pandas as pd
@@ -10,12 +9,12 @@ import os
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, # Capture INFO level messages and above (WARNING, ERROR)
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', # The format for each log line
-    filename='logs/api.log' # The destination file
+    level=logging.INFO, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', 
+    filename='logs/api.log' # Saving log to a file
 )
 
-# Define the input schema using Pydantic for validation
+# Define the input schema using Pydantic 
 class FlowerFeatures(BaseModel):
     sepal_length: float
     sepal_width: float
@@ -31,16 +30,15 @@ mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
 # Load the registered model from the MLflow Model Registry
 MODEL_NAME = "iris-classifier-unique"
-MODEL_STAGE = "Production" # Change to "None" if you haven't transitioned the model
+MODEL_STAGE = "Production" 
 
-logging.info(f"Using MLflow Tracking URI: {MLFLOW_TRACKING_URI}")
 logging.info(f"Loading model '{MODEL_NAME}' version '{MODEL_STAGE}'...")
 try:
     model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/{MODEL_STAGE}")
     logging.info("Model loaded successfully.")
 except Exception as e:
     logging.error(f"Failed to load model: {e} {MLFLOW_TRACKING_URI}")
-    model = None # Set model to None if loading fails
+    model = None
 
 @app.post("/predict")
 def predict(features: FlowerFeatures):

@@ -12,8 +12,6 @@ WORKDIR /mlruns
 EXPOSE 5001
 
 # The command to run the MLflow server.
-# It will store the database and artifacts in the /mlruns directory,
-# which will be our shared volume.
 CMD ["mlflow", "server", \
      "--host", "0.0.0.0", \
      "--port", "5001", \

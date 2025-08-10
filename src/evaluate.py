@@ -1,17 +1,12 @@
-# src/evaluate.py
 import mlflow
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 def evaluate_and_promote():
-    """
-    Loads the latest trained model from a specific experiment and the current
-    production model. Compares their performance and promotes the new model if it's better.
-    """
     MLFLOW_TRACKING_URI = "http://127.0.0.1:5001"
-    EXPERIMENT_NAME = "Iris_Classifier_Chennai_2025"
-    REGISTERED_MODEL_NAME = "iris-classifier-chennai"
+    EXPERIMENT_NAME = "Iris_Classifier"
+    REGISTERED_MODEL_NAME = "iris-classifier"
     
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     
@@ -44,21 +39,19 @@ def evaluate_and_promote():
         prod_accuracy = accuracy_score(y_test, prod_model.predict(X_test))
         print(f"Current production model (Version {prod_model_version.version}) accuracy: {prod_accuracy:.4f}")
     except IndexError:
-        # No production model exists yet
         prod_accuracy = 0
         print("No production model found.")
 
     # --- 3. Compare and promote if better ---
     if latest_accuracy > prod_accuracy:
         print(f"New model is better. Promoting to Production.")
-        # Register the new model
         result = mlflow.register_model(latest_model_uri, REGISTERED_MODEL_NAME)
         # Transition the new version to Production
         client.transition_model_version_stage(
             name=REGISTERED_MODEL_NAME,
             version=result.version,
             stage="Production",
-            archive_existing_versions=True # Move the old Production model to Archived
+            archive_existing_versions=True 
         )
     else:
         print("Current production model is better or equal. No changes made.")

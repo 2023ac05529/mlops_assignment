@@ -1,19 +1,18 @@
-# src/model_trainer.py
 import mlflow
 import mlflow.sklearn
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 import logging
 
-# Set up a logger for this module
+# Logging setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # --- MLflow Configuration ---
-# Use a local file-based database for tracking.
 MLFLOW_TRACKING_URI = "http://127.0.0.1:5001"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 EXPERIMENT_NAME = "Iris_Classifier_Pipeline"
@@ -21,11 +20,8 @@ mlflow.set_experiment(EXPERIMENT_NAME)
 
 
 def run_training():
-    """Loads data, trains two models, and logs them to MLflow."""
     logger.info("Starting model training process...")
     
-    # Load data from the DVC-tracked file
-    # Note: In a real pipeline, you might use dvc.api.open to read this
     df = pd.read_csv('data/iris.csv')
     
     df.columns = ['id', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']
@@ -40,14 +36,20 @@ def run_training():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=2025)
     input_example = X_train.head(5)
 
+    # Preprocess the training data
+    scaler = StandardScaler()
+    print("Fitting scaler on training data...")
+    scaler.fit(X_train)
+    print("Transforming train and test data...")
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
     # --- Experiment 1: Logistic Regression ---
     with mlflow.start_run(run_name="Logistic_Regression_Model") as run:
         logger.info("Training Logistic Regression model.")
         
-        # Define and train the model with unique parameters
         C_param = 1.2
         log_reg_model = LogisticRegression(C=C_param, max_iter=250, solver='lbfgs')
-        log_reg_model.fit(X_train, y_train)
 
         # Evaluate and log
         predictions = log_reg_model.predict(X_test)
@@ -63,7 +65,6 @@ def run_training():
     with mlflow.start_run(run_name="Random_Forest_Model") as run:
         logger.info("Training Random Forest model.")
         
-        # Define and train with unique parameters
         n_estimators_val = 150
         rand_forest_model = RandomForestClassifier(n_estimators=n_estimators_val, max_depth=8, random_state=2025)
         rand_forest_model.fit(X_train, y_train)
